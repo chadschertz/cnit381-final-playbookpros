@@ -1,5 +1,5 @@
 ---
-- name: Configure EtherChannel (LACP) between S1 and S2
+- name: Configure EtherChannel (LACP) between the switches S1 and S2
 	hosts: switches
 	gather_facts: no
 	connection: network_cli
