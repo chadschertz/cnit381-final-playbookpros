@@ -1,0 +1,1 @@
+# This playbook should run show running-config and save the outputs to the /backups/ directory. Make sure that files names are set using the inventory hostname, and also include the current date and time in the filename. 

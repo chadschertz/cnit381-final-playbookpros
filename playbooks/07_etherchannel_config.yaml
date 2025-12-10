@@ -1,0 +1,1 @@
+# Use g0/0/1-4 for etherchannel between S1 and S2. Configure these as a trunk between these switches. 

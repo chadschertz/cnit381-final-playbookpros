@@ -1,0 +1,4 @@
+# Need to do a few things here I think,
+# Define the list of VLANs to be created
+# Do we want to set up these VLANs on multilayer switch and allow the routers to route between them? Use SVIs?
+# Then from S1 to S2, we can do standard VLANs using Etherchannel between them? 
