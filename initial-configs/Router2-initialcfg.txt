@@ -1,10 +1,11 @@
 hostname R2
+no ip domain lookup
 line con 0
  exec-timeout 0 0
  logging synchronous
  exit
 interface g0/0/1
- ip address 10.0.0.2 255.255.255.0
+ ip address 10.99.2.1 255.255.255.252
  no shutdown
  exit
 enable secret cnit381!
@@ -16,4 +17,5 @@ line vty 0 15
  login local
  transport input ssh
  exit
+ip ssh version 2
 end
