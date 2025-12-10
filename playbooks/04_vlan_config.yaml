@@ -1,4 +1,164 @@
-# Need to do a few things here I think,
-# Define the list of VLANs to be created
-# Do we want to set up these VLANs on multilayer switch and allow the routers to route between them? Use SVIs?
-# Then from S1 to S2, we can do standard VLANs using Etherchannel between them? 
+---
+- name: Configure VLANs and SVIs on multilayer switch
+  hosts: S1
+  gather_facts: no
+  connection: network_cli
+  vars:
+    vlans:
+      - vlan_id: 10
+        name: "Data"
+        svi_ip: "192.168.10.1"
+        svi_mask: "255.255.255.0"
+      - vlan_id: 20
+        name: "Voice"
+        svi_ip: "192.168.20.1"
+        svi_mask: "255.255.255.0"
+      - vlan_id: 30
+        name: "Cameras"
+        svi_ip: "192.168.30.1"
+        svi_mask: "255.255.255.0"
+      - vlan_id: 99
+        name: "Management"
+        svi_ip: "192.168.99.1"
+        svi_mask: "255.255.255.0"
+      - vlan_id: 999
+        name: "Native"
+        svi_ip: "192.168.99.250"
+        svi_mask: "255.255.255.0"
+  tasks:
+    # -- Create VLANs on the multilayer switch --
+    - name: Create VLANs on S1
+      ios_config:
+        lines:
+          - name "{{ item.name }}"
+        parents: "vlan {{ item.vlan_id }}"
+      loop: "{{ vlans }}"
+      register: vlan_creation_result
+
+    - name: Debug VLAN creation result
+      debug:
+        var: vlan_creation_result
+
+    # -- Configure SVI (Switch Virtual Interface) for inter-VLAN routing --
+    - name: Configure SVI interfaces on S1
+      ios_config:
+        lines:
+          - ip address {{ item.svi_ip }} {{ item.svi_mask }}
+          - no shutdown
+        parents: "interface Vlan{{ item.vlan_id }}"
+      loop: "{{ vlans }}"
+      register: svi_config_result
+
+    - name: Debug SVI configuration result
+      debug:
+        var: svi_config_result
+
+    # -- Enable IP routing on the multilayer switch --
+    - name: Enable IP routing on S1
+      ios_config:
+        lines:
+          - ip routing
+      register: routing_result
+
+    - name: Debug IP routing result
+      debug:
+        var: routing_result
+
+    # -- Verify VLAN configuration --
+    - name: Verify VLAN configuration
+      ios_command:
+        commands:
+          - show vlan brief
+      register: vlan_output
+
+    - name: Display VLAN configuration
+      debug:
+        msg: "{{ vlan_output.stdout_lines }}"
+
+    # -- Verify SVI configuration --
+    - name: Verify SVI interfaces
+      ios_command:
+        commands:
+          - show ip interface brief | include Vlan
+      register: svi_output
+
+    - name: Display SVI configuration
+      debug:
+        msg: "{{ svi_output.stdout_lines }}"
+
+    # -- Verify IP routing is enabled --
+    - name: Verify IP routing
+      ios_command:
+        commands:
+          - show ip route
+      register: routing_output
+
+    - name: Display routing table
+      debug:
+        msg: "{{ routing_output.stdout_lines }}"
+
+# -- Configure VLANs on S2 (access switch) --
+- name: Configure VLANs on access switch
+  hosts: S2
+  gather_facts: no
+  connection: network_cli
+  vars:
+    vlans:
+      - vlan_id: 10
+        name: "Data"
+      - vlan_id: 20
+        name: "Voice"
+      - vlan_id: 30
+        name: "Cameras"
+      - vlan_id: 99
+        name: "Management"
+      - vlan_id: 999
+        name: "Native"
+  tasks:
+    # -- Create VLANs on S2 --
+    - name: Create VLANs on S2
+      ios_config:
+        lines:
+          - name "{{ item.name }}"
+        parents: "vlan {{ item.vlan_id }}"
+      loop: "{{ vlans }}"
+      register: vlan_creation_result
+
+    - name: Debug VLAN creation result
+      debug:
+        var: vlan_creation_result
+
+    # -- Configure etherchannel ports as trunk --
+    - name: Configure etherchannel port-channel as trunk
+      ios_config:
+        lines:
+          - switchport mode trunk
+          - switchport trunk allowed vlan all
+      parents: interface Port-channel1
+      register: trunk_config_result
+
+    - name: Debug trunk configuration result
+      debug:
+        var: trunk_config_result
+
+    # -- Verify VLAN configuration on S2 --
+    - name: Verify VLAN configuration
+      ios_command:
+        commands:
+          - show vlan brief
+      register: vlan_output
+
+    - name: Display VLAN configuration
+      debug:
+        msg: "{{ vlan_output.stdout_lines }}"
+
+    # -- Verify trunk configuration --
+    - name: Verify trunk status
+      ios_command:
+        commands:
+          - show interfaces trunk
+      register: trunk_output
+
+    - name: Display trunk configuration
+      debug:
+        msg: "{{ trunk_output.stdout_lines }}" 
