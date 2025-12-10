@@ -1,4 +1,69 @@
-# Need to do a few things here I think,
-# Define the list of VLANs to be created
-# Do we want to set up these VLANs on multilayer switch and allow the routers to route between them? Use SVIs?
-# Then from S1 to S2, we can do standard VLANs using Etherchannel between them? 
+---
+
+- name: Create VLANs on all switches
+	hosts: switches
+	gather_facts: no
+	connection: network_cli
+	tasks:
+		- name: Create VLANs from inventory variable
+			ios_config:
+				lines:
+					- "vlan {{ item.id }}"
+					- " name {{ item.name }}"
+			loop: "{{ vlans }}"
+
+		- name: Show VLAN brief on switches
+			ios_command:
+				commands:
+					- show vlan brief
+			register: vlan_brief
+
+		- name: Display VLAN brief
+			debug:
+				msg: "{{ vlan_brief.stdout[0] | default('') }}"
+
+- name: Configure SVIs and EIGRP on S1
+	hosts: S1
+	gather_facts: no
+	connection: network_cli
+	tasks:
+		- name: Create SVIs on S1 for each VLAN (exclude native VLAN)
+			ios_config:
+				lines:
+					- "interface Vlan{{ item.id }}"
+					- " ip address 10.{{ item.id }}.0.1 {{ svi_netmask | default('255.255.255.0') }}"
+					- " no shutdown"
+			loop: "{{ vlans }}"
+			when: item.id != (native_vlan | int)
+
+		- name: Configure EIGRP AS100 on S1
+			ios_config:
+				lines:
+					- router eigrp 100
+					- no auto-summary
+					- network 10.0.0.0 0.255.255.255
+
+		- name: Pause briefly for interfaces and EIGRP to come up
+			pause:
+				seconds: 5
+
+		- name: Show IP interface brief on S1
+			ios_command:
+				commands:
+					- show ip interface brief
+			register: ip_brief
+
+		- name: Display IP interface brief
+			debug:
+				msg: "{{ ip_brief.stdout[0] | default('') }}"
+
+		- name: Verify EIGRP neighbors and routes on S1
+			ios_command:
+				commands:
+					- show ip eigrp neighbors
+					- show ip route eigrp
+			register: eigrp_out
+
+		- name: Display EIGRP verification
+			debug:
+				msg: "{{ eigrp_out.stdout | default([]) }}"

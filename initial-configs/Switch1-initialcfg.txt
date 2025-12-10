@@ -1,4 +1,6 @@
 hostname S1
+no ip domain lookup
+ip routing
 line con 0
  exec-timeout 0 0
  logging synchronous
@@ -6,10 +8,25 @@ line con 0
 vlan 99
  name Management
 int vlan 99
- ip address 10.0.0.3 255.255.255.0
+ ip address 10.99.0.1 255.255.255.0
  no shutdown
  exit
-ip default-gateway 10.0.0.1
+int g1/0/10
+ no switchport
+ ip address 10.99.1.2 255.255.255.252
+ no shutdown
+ exit
+int g1/0/11
+ no switchport
+ ip address 10.99.2.2 255.255.255.252
+ no shutdown
+ exit
+int g1/0/24
+ switchport mode access
+ switchport access vlan 99
+ spanning-tree portfast
+ no shutdown
+ exit
 enable secret cnit381!
 ip domain name cnit381.local
 crypto key generate rsa modulus 2048
