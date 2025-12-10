@@ -1,0 +1,49 @@
+---
+- name: Configure NTP and Logging
+  hosts: all
+  gather_facts: no
+  connection: network_cli
+  tasks:
+    # -- NTP Configuration --
+    - name: Configure NTP server
+      ios_config:
+        lines:
+          - ntp server time.google.com
+      register: ntp_result
+
+    - name: Debug NTP configuration result
+      debug:
+        var: ntp_result
+
+    - name: Verify NTP configuration
+      ios_command:
+        commands:
+          - show ntp status
+          - show ntp associations
+      register: ntp_verify
+      
+    - name: Debug NTP verification output
+      debug:
+        var: ntp_verify.stdout_lines
+
+    # -- Logging Configuration --
+    - name: Configure logging options
+      ios_config:
+        lines:
+          - logging buffered 16384
+          - logging console warnings
+      register: logging_result
+
+    - name: Debug logging configuration result
+      debug:
+        var: logging_result
+    
+    - name: Verify logging configuration
+      ios_command:
+        commands:
+          - show running-config | include logging
+      register: logging_verify
+      
+    - name: Debug logging verification output
+      debug:
+        var: logging_verify.stdout_lines
