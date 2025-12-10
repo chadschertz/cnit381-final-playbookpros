@@ -11,10 +11,13 @@ The project description will go here.
 ## Ansible Host Setup
 You will need to have access to an ansible host in your environment to run the playbooks. For the case of this lab, we are utilizng a Windows worksation with Windows Subsystem for Linux (WSL) installed. We are using the Ubuntu distribution.
 To ensure that Ansible is installed, perform the following:
+
 ```sudo apt update```
+
 ```sudo apt install ansible sshpass python3-paramiko -y```
 
 Verify that Ansible has been installed by running the following command:
+
 ```ansible --version```
 
 ## Commands
