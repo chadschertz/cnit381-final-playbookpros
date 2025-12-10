@@ -1,6 +1,6 @@
 ---
 - name: Configure devices with hostnames
-  hosts: devices
+  hosts: all
   gather_facts: no
   connection: network_cli
   tasks:
@@ -40,11 +40,11 @@
   gather_facts: no
   connection: network_cli
   tasks:
-    - name: Set interface description on Ethernet0/0
+    - name: Set interface description on GigabitEthernet0/0/0
       ios_config:
         lines:
           - description "{{ interface_description }}"
-        parents: interface Ethernet0/0
+        parents: interface GigabitEthernet0/0/0
       register: interface_result
       
     - name: Debug interface description configuration result
@@ -54,7 +54,7 @@
     - name: Verify interface description configuration
       ios_command:
         commands:
-          - show running-config interface Ethernet0/0
+          - show running-config interface GigabitEthernet0/0/0
       register: interface_output
       
     - name: Debug interface description output

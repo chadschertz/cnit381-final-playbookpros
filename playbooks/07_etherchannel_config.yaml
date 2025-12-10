@@ -1,28 +1,30 @@
 ---
 - name: Configure EtherChannel (LACP) between the switches S1 and S2
-	hosts: switches
-	gather_facts: no
-	connection: network_cli
-	tasks:
-		- name: Configure physical interfaces for LACP (switchport range defined in the inventory file)
-			ios_config:
-				lines:
-					- channel-group 1 mode active
-					- no shutdown
+  hosts: switches
+  gather_facts: no
+  connection: network_cli
+  tasks: 
+    - name: Configure physical interfaces for LACP (switchport range defined in the inventory file)
+      ios_config:
+        lines:
+          - channel-group 1 mode active
+          - no shutdown
         parents: 
           - interface range {{ etherchannel_range }}
+      register: phys_int_config_result
 
-		- name: Configure Port-channel1 as a trunk allowing all VLANs
-			ios_config:
-				lines:
-					- switchport trunk encapsulation dot1q
-					- switchport mode trunk
-					- switchport trunk allowed vlan all
+    - name: Configure Port-channel1 as a trunk allowing all VLANs
+      ios_config:
+        lines:
+          - switchport trunk encapsulation dot1q
+          - switchport mode trunk
+          - switchport trunk allowed vlan all
           - switchport trunk native vlan 999
-					- no shutdown
+          - no shutdown
         parents: 
           - interface Port-channel1
-
+      register: trunk_config_result
+    
     - name: Debug trunk configuration result
       debug:
         var: trunk_config_result

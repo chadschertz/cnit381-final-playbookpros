@@ -4,14 +4,6 @@
   gather_facts: no
   connection: network_cli
   tasks:
-    # -- Ping Connectivity Tests --
-    - name: Ping all hosts to verify connectivity
-      ansible.netcommon.net_ping:
-      register: ping_result
-    - name: Display ping results
-      debug:
-        msg: "Ping to {{ inventory_hostname }}: {{ ping_result.ping }}"
-
     # -- Show version summary for all devices --
     - name: Test connection and show version
       ios_command:

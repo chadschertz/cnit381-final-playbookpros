@@ -1,26 +1,26 @@
 ---
 - name: Backup running-config from all network devices
-	hosts: all
-	gather_facts: no
-	connection: network_cli
-	collections:
-		- cisco.ios
-	tasks:
-		- name: Run 'show running-config' on device
-			ios_command:
-				commands: show running-config
-			register: running_config
+  hosts: all
+  gather_facts: no
+  connection: network_cli
+  collections:
+    - cisco.ios
+  tasks:
+    - name: Run 'show running-config' on device
+      ios_command:
+        commands: show running-config
+      register: running_config
 
-		- name: Ensure backups directory exists on control node
-			file:
-				path: "{{ playbook_dir }}/../backups"
-				state: directory
-				mode: '0755'
-			delegate_to: localhost
-			run_once: true
+    - name: Ensure backups directory exists on control node
+      file:
+        path: "{{ playbook_dir }}/../backups"
+        state: directory
+        mode: '0755'
+      delegate_to: localhost
+      run_once: true
 
-		- name: Save running-config to control node backups directory
-			copy:
-				content: "{{ running_config.stdout[0] | default('') }}"
-				dest: "{{ playbook_dir }}/../backups/{{ inventory_hostname }}-{{ lookup('pipe','date +%Y%m%d-%H%M%S') }}.cfg"
-			delegate_to: localhost
+    - name: Save running-config to control node backups directory
+      copy:
+        content: "{{ running_config.stdout[0] | default('') }}"
+        dest: "{{ playbook_dir }}/../backups/{{ inventory_hostname }}-{{ lookup('pipe','date +%Y%m%d-%H%M%S') }}.cfg"
+      delegate_to: localhost
