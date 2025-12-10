@@ -23,29 +23,33 @@
         parents: 
           - interface Port-channel1
 
-		- name: Give LACP a moment to form
-			pause:
-				seconds: 5
+    - name: Debug trunk configuration result
+      debug:
+        var: trunk_config_result
 
-		- name: Verify EtherChannel summary contains Port-channel1
-			ios_command:
-				commands:
-					- show etherchannel summary | include Po1
-			register: ec_summary
+    - name: Give LACP a moment to form
+      pause:
+        seconds: 5
 
-		- name: Fail if Port-channel1 is not active/present
-			fail:
-				msg: "Port-channel1 not active on {{ inventory_hostname }}. Output: {{ ec_summary.stdout[0] | default('') }}"
-			when: ec_summary.stdout[0] | default('') == ''
+    - name: Verify EtherChannel summary contains Port-channel1
+      ios_command:
+        commands:
+          - show etherchannel summary | include Po1
+      register: ec_summary
 
-		- name: Show Port-channel1 interface details
-			ios_command:
-				commands:
-					- show interfaces Port-channel1
-			register: po_int
+    - name: Fail if Port-channel1 is not active/present
+      fail:
+        msg: "Port-channel1 not active on {{ inventory_hostname }}. Output: {{ ec_summary.stdout[0] | default('') }}"
+      when: ec_summary.stdout[0] | default('') == ''
 
-		- name: Display verification outputs
-			debug:
-				msg:
-					- "{{ ec_summary.stdout[0] | default('No summary output') }}"
-					- "{{ po_int.stdout[0] | default('No interface output') }}"
+    - name: Show Port-channel1 interface details
+      ios_command:
+        commands:
+          - show interfaces Port-channel1
+      register: po_int
+
+    - name: Display verification outputs
+      debug:
+        msg:
+          - "{{ ec_summary.stdout[0] | default('No summary output') }}"
+          - "{{ po_int.stdout[0] | default('No interface output') }}"
