@@ -1,1 +1,49 @@
-# Use g0/0/1-4 for etherchannel between S1 and S2. Configure these as a trunk between these switches. 
+---
+- name: Configure EtherChannel (LACP) between S1 and S2
+	hosts: switches
+	gather_facts: no
+	connection: network_cli
+	tasks:
+		- name: Configure physical interfaces for LACP (switchport range defined in the inventory file)
+			ios_config:
+				lines:
+					- interface range {{ etherchannel_range }}
+					- channel-group 1 mode active
+					- no shutdown
+
+		- name: Configure Port-channel1 as a trunk allowing all VLANs
+			ios_config:
+				lines:
+					- interface Port-channel1
+					- switchport trunk encapsulation dot1q
+					- switchport mode trunk
+					- switchport trunk allowed vlan all
+          - switchport trunk native vlan 999
+					- no shutdown
+
+		- name: Give LACP a moment to form
+			pause:
+				seconds: 5
+
+		- name: Verify EtherChannel summary contains Port-channel1
+			ios_command:
+				commands:
+					- show etherchannel summary | include Po1
+			register: ec_summary
+
+		- name: Fail if Port-channel1 is not active/present
+			fail:
+				msg: "Port-channel1 not active on {{ inventory_hostname }}. Output: {{ ec_summary.stdout[0] | default('') }}"
+			when: ec_summary.stdout[0] | default('') == ''
+
+		- name: Show Port-channel1 interface details
+			ios_command:
+				commands:
+					- show interfaces Port-channel1
+			register: po_int
+
+		- name: Display verification outputs
+			debug:
+				msg:
+					- "{{ ec_summary.stdout[0] | default('No summary output') }}"
+					- "{{ po_int.stdout[0] | default('No interface output') }}"
