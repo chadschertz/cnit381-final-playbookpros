@@ -10,7 +10,8 @@ The project description will go here.
 # How to Run Each Playbook
 ## Ansible Host Setup
 You will need to have access to an ansible host in your environment to run the playbooks. For the case of this lab, we are utilizng a Windows worksation with Windows Subsystem for Linux (WSL) installed. We are using the Ubuntu distribution.
-To ensure that Ansible is installed, perform the following:
+
+To install Ansible, perform the following:
 
 ```sudo apt update```
 
