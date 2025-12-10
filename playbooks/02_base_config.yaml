@@ -72,8 +72,6 @@
         fail_msg: "Interface description verification failed. Expected: {{ interface_description }}, Got: {{ interface_check }}"
         success_msg: "Interface description verified successfully: {{ interface_description }}"
 
-## Need to add in interface descriptions for switches as well
-
 - name: Configure message of the day login banners
   hosts: all
   gather_facts: no
