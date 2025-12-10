@@ -1,1 +1,26 @@
-# This playbook should run show running-config and save the outputs to the /backups/ directory. Make sure that files names are set using the inventory hostname, and also include the current date and time in the filename. 
+---
+- name: Backup running-config from all network devices
+	hosts: all
+	gather_facts: no
+	connection: network_cli
+	collections:
+		- cisco.ios
+	tasks:
+		- name: Run 'show running-config' on device
+			ios_command:
+				commands: show running-config
+			register: running_config
+
+		- name: Ensure backups directory exists on control node
+			file:
+				path: "{{ playbook_dir }}/../backups"
+				state: directory
+				mode: '0755'
+			delegate_to: localhost
+			run_once: true
+
+		- name: Save running-config to control node backups directory
+			copy:
+				content: "{{ running_config.stdout[0] | default('') }}"
+				dest: "{{ playbook_dir }}/../backups/{{ inventory_hostname }}-{{ lookup('pipe','date +%Y%m%d-%H%M%S') }}.cfg"
+			delegate_to: localhost
