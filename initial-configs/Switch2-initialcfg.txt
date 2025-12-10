@@ -6,12 +6,12 @@ line con 0
 vlan 99
  name Management
 int vlan 99
- ip address 10.0.0.3 255.255.255.0
+ ip address 10.0.0.4 255.255.255.0
  no shutdown
  exit
 ip default-gateway 10.0.0.1
 enable secret cnit381!
-ip domain name s2.cnit381.local
+ip domain name cnit381.local
 crypto key generate rsa modulus 2048
 username ansible password ants4cnit381!
 ip ssh version 2
