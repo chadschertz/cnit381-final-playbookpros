@@ -2,16 +2,36 @@
 Here are the results from testing our playbooks.
 
 # Specific Test Results
-## Show Loopbacks Created Automatically
+## Show Initial Ping Connectivity to Devices
 
+## Show Loopbacks Created Automatically
+### R1
+
+### R2
 
 ## Show EIGRP Neighbor Relationships and EIGRP Routes
+### R1
+
+### R2
+
+
+## Demonstrate Connectivity Between Loopback Interfaces
 
 
 ## Show VLANs
+### S1
 
+### S2
+
+## Show EtherChannel
+### S1
+
+### S2
 
 ## Show Configured Services
+### NTP Configuration
+
+### Loggging Configuration
 
 
 ## Show Backups Folder
