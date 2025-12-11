@@ -24,13 +24,14 @@ Verify that Ansible has been installed by running the following command:
 ## Commands
 | Playbook | Command to Run |
 |---|---|
-| 01_verify_connectivity.yaml | ```ansible-playbook 01_verify_connectivity.yaml``` |
-| 02_base_config.yaml | ```ansible-playbook 02_base_config.yaml``` |
-| 03_eigrp_config.yaml | ```ansible-playbook 03_eigrp_config.yaml``` |
-| 04_vlan_config.yaml | ```ansible-playbook 04_vlan_config.yaml``` |
-| 05_services_config.yaml | ```ansible-playbook 05_services_config.yaml``` |
-| 06_backup_config.yaml | ```ansible-playbook 06_backup_config.yaml``` |
-| 07_etherchannel_config.yaml | ```ansible-playbook 07_etherchannel_config.yaml``` |
+| Initial Ping Test Command | ```ansible all -i inventory.ini -m ping``` |
+| 01_verify_connectivity.yaml | ```ansible-playbook -i inventory.ini playbooks/01_verify_connectivity.yaml``` |
+| 02_base_config.yaml | ```ansible-playbook -i inventory.ini playbooks/02_base_config.yaml``` |
+| 03_eigrp_config.yaml | ```ansible-playbook -i inventory.ini playbooks/03_eigrp_config.yaml``` |
+| 04_vlan_config.yaml | ```ansible-playbook -i inventory.ini playbooks/04_vlan_config.yaml``` |
+| 05_services_config.yaml | ```ansible-playbook -i inventory.ini playbooks/05_services_config.yaml``` |
+| 06_backup_config.yaml | ```ansible-playbook -i inventory.ini playbooks/06_backup_config.yaml``` |
+| 07_etherchannel_config.yaml | ```ansible-playbook -i inventory.ini playbooks/07_etherchannel_config.yaml``` |
 
 # Summary of Each Playbook
 * 01_verify_connectivity.yaml
